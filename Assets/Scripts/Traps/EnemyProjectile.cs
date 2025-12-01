@@ -5,15 +5,28 @@ public class EnemyProjectile : EnemyDamage // will damage the player every time 
     [SerializeField] private float speed;
     [SerializeField] private float resetTime;
     private float lifetime;
+    private Animator anim;
+    private BoxCollider2D coll;
+    private bool hit;
+
+    private void Awake()
+    {
+        anim = GetComponent<Animator>();
+        coll = GetComponent<BoxCollider2D>();
+
+    }
 
     public void ActivateProjectile()
     {
+        hit = false;
         lifetime = 0;
         gameObject.SetActive(true);
+        coll.enabled = true;
     }
 
     private void Update()
     {
+        if (hit) return;
         float movementSpeed = speed * Time.deltaTime;
         transform.Translate(movementSpeed, 0, 0);
 
@@ -24,7 +37,17 @@ public class EnemyProjectile : EnemyDamage // will damage the player every time 
 
     private void OnTriggerEnter2D(Collider2D collison)
     {
-        base.OnTriggerEnter2D(collison);
-        gameObject.SetActive(false );  // when this hits any object it deactives
+        hit = true;
+        base.OnTriggerEnter2D(collison); // when this hits any object it deactives
+        coll.enabled = false;
+
+        if (anim != null)
+            anim.SetTrigger("explde");
+        else
+            gameObject.SetActive(false );
+    }
+    private void Deactivate()
+    {
+        gameObject.SetActive(false);
     }
 }
